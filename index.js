@@ -41,7 +41,7 @@ app.get('/reviews', async (req, res)=>{
     res.send(result);
 })
 
-app.post('/cart', async(req, res)=>{
+app.post('/carts', async(req, res)=>{
     const item = req.body;
     const result = await cartCOllection.insertOne(item);
     res.send(result);
