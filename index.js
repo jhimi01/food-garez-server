@@ -30,6 +30,7 @@ async function run() {
 
     const foodCOllection = client.db("fooddb").collection("allfooods");
     const reviewsCOllection = client.db("fooddb").collection("reviews");
+    const cartCOllection = client.db("fooddb").collection("carts");
 
 app.get('/menu', async (req, res)=>{
     const result = await foodCOllection.find().toArray();
@@ -39,6 +40,12 @@ app.get('/reviews', async (req, res)=>{
     const result = await reviewsCOllection.find().toArray();
     res.send(result);
 })
+
+app.post('/cart', async(req, res)=>{
+    const item = req.body;
+    const result = await cartCOllection.insertOne(item);
+    res.send(result);
+});
 
 
     // Send a ping to confirm a successful connection
