@@ -10,9 +10,9 @@ app.use(cors());
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.FOOD_USER}:${process.env.FOOD_PASS}@cluster0.ysrfscy.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri)
+
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -41,10 +41,32 @@ app.get('/reviews', async (req, res)=>{
     res.send(result);
 })
 
+
+// cart collection apis
+
+app.get('/carts', async (req, res)=>{
+  const email = req.query.email;
+  console.log(email);
+  if (!email) {
+    res.send([])
+  }
+  const query = { email : email};
+  const result = await cartCOllection.find(query).toArray();
+  res.send(result)
+})
+
 app.post('/carts', async(req, res)=>{
     const item = req.body;
     const result = await cartCOllection.insertOne(item);
     res.send(result);
+});
+
+
+app.delete('/carts/:id', async(req, res)=>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)};
+  const result = await cartCOllection.deleteOne(query);
+  res.send(result)
 });
 
 
