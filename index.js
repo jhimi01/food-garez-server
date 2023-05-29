@@ -28,14 +28,40 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+    const usersCOllection = client.db("fooddb").collection("users");
     const foodCOllection = client.db("fooddb").collection("allfooods");
     const reviewsCOllection = client.db("fooddb").collection("reviews");
     const cartCOllection = client.db("fooddb").collection("carts");
 
+
+    app.get('/users', async (req, res) => {
+      const result = await usersCOllection.find().toArray();
+      res.send(result);
+    })
+
+
+    // user releted api
+    app.post('/users', async(req, res) => {
+      const user = req.body;
+      const query = { email: user.email}
+      const existingUser = await usersCOllection.findOne(query)
+      if (existingUser) {
+        return res.send({message: "User already exists"})
+      }
+      const result = await usersCOllection.insertOne(user);
+      res.send(result);
+    })
+
+
+
+
+    // all food related apis
 app.get('/menu', async (req, res)=>{
     const result = await foodCOllection.find().toArray();
     res.send(result);
 })
+
+// reviews releted apis
 app.get('/reviews', async (req, res)=>{
     const result = await reviewsCOllection.find().toArray();
     res.send(result);
@@ -79,17 +105,6 @@ app.delete('/carts/:id', async(req, res)=>{
   }
 }
 run().catch(console.dir);
-
-
-
-
-
-
-
-
-
-
-
 
 
 
