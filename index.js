@@ -128,7 +128,7 @@ app.get('/carts', verifyJWT, async (req, res)=>{
 
   const decodedEmail = req.decoded.email;
   if (email !== decodedEmail) {
-    return res.status(403).send({ error: true, message: 'phorbidden access' });
+    return res.status(403).send({ error: true, message: 'forbidden access' });
   }
 
   const query = { email : email};
