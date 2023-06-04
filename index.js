@@ -138,6 +138,23 @@ app.get('/menu', async (req, res)=>{
     res.send(result);
 })
 
+// insert food menu
+app.post('/menu',verifyJWT, verifyAdmin, async (req, res)=>{
+  const newItem = req.body;
+  const result = await foodCOllection.insertOne(newItem)
+  res.send(result);
+})
+
+// delete food
+app.delete('/menu/:id',verifyJWT, verifyAdmin, async (req, res)=>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  const result = await foodCOllection.deleteOne(query)
+  res.send(result)
+});
+
+
+
 // reviews releted apis
 app.get('/reviews', async (req, res)=>{
     const result = await reviewsCOllection.find().toArray();
