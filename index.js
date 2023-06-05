@@ -3,6 +3,9 @@ const app = express()
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
+// This is your test secret API key.
+const stripe = require("stripe")(process.env.PAYMENT_SECRET_KEY);
+
 const port = process.env.PORT || 5000;
 
 app.use(express.json());
@@ -51,6 +54,7 @@ async function run() {
     const foodCOllection = client.db("fooddb").collection("allfooods");
     const reviewsCOllection = client.db("fooddb").collection("reviews");
     const cartCOllection = client.db("fooddb").collection("carts");
+    const paymentCOllection = client.db("fooddb").collection("payments");
 
 
 
@@ -194,6 +198,35 @@ app.delete('/carts/:id', async(req, res)=>{
   const result = await cartCOllection.deleteOne(query);
   res.send(result)
 });
+
+
+// payment methods
+app.post('/create-payment-intent' , verifyJWT ,async(req, res)=>{
+  const  {price} = req.body;
+  const amount = price*100;
+   // Create a PaymentIntent with the order amount and currency
+   const paymentIntent = await stripe.paymentIntents.create({
+    amount: amount,
+    currency: "usd",
+    payment_method_types: [
+      "card"
+    ],
+  }); 
+  res.send({
+    clientSecret: paymentIntent.client_secret,
+  });
+})
+
+
+// payment related pai
+app.post('/payment',verifyJWT,  async ( req, res )=>{
+  const payment = req.body;
+  const result = await paymentCOllection.insertOne(payment)
+  const query = {_id: {$in: payment.cartItems.map(id => new ObjectId(id))}}
+  const deletedResult = await cartCOllection.deleteMany(query)
+  res.send({result, deletedResult})
+})
+
 
 
     // Send a ping to confirm a successful connection
