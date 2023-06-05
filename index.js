@@ -228,6 +228,18 @@ app.post('/payment',verifyJWT,  async ( req, res )=>{
 })
 
 
+app.get('/admin-stats',verifyJWT, verifyAdmin, async(req, res)=>{
+  const users = await usersCOllection.estimatedDocumentCount()
+  const products = await foodCOllection.estimatedDocumentCount()
+  const orders = await paymentCOllection.estimatedDocumentCount()
+
+  const payments = await paymentCOllection.find().toArray()
+  const revenue = payments.reduce((sum, payment)=>sum + payment.price, 0)
+
+  res.send({users, products, orders, revenue})
+})
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
